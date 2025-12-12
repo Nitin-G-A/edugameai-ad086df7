@@ -9,10 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ClipboardList, Plus, Loader2, FileText, Clock, Users, Upload, X, File, Eye, Sparkles, CheckCircle } from 'lucide-react';
+import { SecureFileLink } from '@/components/SecureFileLink';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { uploadFileToStorage } from '@/hooks/useSignedUrl';
 
 interface Assignment {
   id: string;
@@ -180,20 +182,9 @@ const TeacherAssignments = () => {
 
     setIsUploading(true);
     try {
-      const fileExt = uploadedFile.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('uploads')
-        .upload(fileName, uploadedFile);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
-        .getPublicUrl(fileName);
-
-      return publicUrl;
+      // Store only the file path, not a public URL
+      const filePath = await uploadFileToStorage(uploadedFile, user.id, 'assignments');
+      return filePath;
     } catch (error: any) {
       console.error('Upload error:', error);
       throw new Error('Failed to upload file');
@@ -489,11 +480,7 @@ const TeacherAssignments = () => {
                         <div>{assignment.max_points} points</div>
                       </div>
                       {assignment.file_url && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={assignment.file_url} target="_blank" rel="noopener noreferrer">
-                            View File
-                          </a>
-                        </Button>
+                        <SecureFileLink filePath={assignment.file_url} variant="view" />
                       )}
                     </div>
                   </CardContent>
@@ -585,12 +572,7 @@ const TeacherAssignments = () => {
 
                           {submission.file_url && (
                             <div className="mb-3">
-                              <Button variant="outline" size="sm" asChild>
-                                <a href={submission.file_url} target="_blank" rel="noopener noreferrer">
-                                  <FileText className="w-4 h-4 mr-1" />
-                                  View Submitted File
-                                </a>
-                              </Button>
+                              <SecureFileLink filePath={submission.file_url} variant="view" />
                             </div>
                           )}
 
