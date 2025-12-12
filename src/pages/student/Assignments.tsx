@@ -5,11 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { ClipboardList, Clock, Send, FileText, Loader2, Download, ExternalLink, Upload, X, File, CheckCircle, Star } from 'lucide-react';
+import { ClipboardList, Clock, Send, FileText, Loader2, Upload, X, File, CheckCircle, Star } from 'lucide-react';
+import { SecureFileLink } from '@/components/SecureFileLink';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { uploadFileToStorage } from '@/hooks/useSignedUrl';
 
 interface Assignment {
   id: string;
@@ -131,20 +133,9 @@ const StudentAssignments = () => {
 
     setIsUploading(true);
     try {
-      const fileExt = uploadedFile.name.split('.').pop();
-      const fileName = `submissions/${user.id}/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('uploads')
-        .upload(fileName, uploadedFile);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
-        .getPublicUrl(fileName);
-
-      return publicUrl;
+      // Store only the file path, not a public URL
+      const filePath = await uploadFileToStorage(uploadedFile, user.id, 'submissions');
+      return filePath;
     } catch (error: any) {
       console.error('Upload error:', error);
       throw new Error('Failed to upload file');
@@ -289,20 +280,7 @@ const StudentAssignments = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={assignment.file_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-4 h-4 mr-1" />
-                            View
-                          </a>
-                        </Button>
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={assignment.file_url} download>
-                            <Download className="w-4 h-4 mr-1" />
-                            Download
-                          </a>
-                        </Button>
-                      </div>
+                      <SecureFileLink filePath={assignment.file_url} />
                     </div>
                   </div>
                 )}
