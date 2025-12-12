@@ -12,7 +12,7 @@
 - [About](#about)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Screenshots / Demo](#screenshots--demo)
+- [Screenshots / Demo](#screenshots)
 - [Requirements](#requirements)
 - [Installation & Setup](#installation--setup)
 - [Environment Variables](#environment-variables)
