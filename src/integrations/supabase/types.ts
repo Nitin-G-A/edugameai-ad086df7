@@ -532,6 +532,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      lookup_class_by_code: {
+        Args: { code: string }
+        Returns: {
+          class_id: string
+          class_name: string
+        }[]
+      }
     }
     Enums: {
       app_role: "student" | "teacher"
