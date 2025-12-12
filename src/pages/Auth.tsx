@@ -24,15 +24,19 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
+  const [justSignedUpAsTeacher, setJustSignedUpAsTeacher] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'student' | 'teacher'>(
     searchParams.get('role') === 'teacher' ? 'teacher' : 'student'
   );
 
   useEffect(() => {
+    // Skip auto-redirect if user just signed up as teacher (we handle that manually)
+    if (justSignedUpAsTeacher) return;
+    
     if (!loading && user && role) {
       navigate(role === 'teacher' ? '/teacher' : '/student');
     }
-  }, [user, role, loading, navigate]);
+  }, [user, role, loading, navigate, justSignedUpAsTeacher]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +120,9 @@ const Auth = () => {
         }
         
         toast.success('Teacher account created successfully!');
+        // Prevent useEffect from redirecting to student dashboard
+        setJustSignedUpAsTeacher(true);
+        setIsLoading(false);
         // Force navigation to teacher dashboard
         navigate('/teacher');
         return;
