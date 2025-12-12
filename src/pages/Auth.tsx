@@ -1,26 +1,32 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { GraduationCap, Loader2 } from 'lucide-react';
+import { GraduationCap, Loader2, Users, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const emailSchema = z.string().email('Invalid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signIn, signUp, user, role, loading } = useAuth();
 
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'student' | 'teacher'>(
+    searchParams.get('role') === 'teacher' ? 'teacher' : 'student'
+  );
 
   useEffect(() => {
     if (!loading && user && role) {
@@ -62,6 +68,10 @@ const Auth = () => {
         toast.error('Please enter your full name');
         return;
       }
+      if (selectedRole === 'teacher' && !inviteCode.trim()) {
+        toast.error('Please enter a teacher invite code');
+        return;
+      }
     } catch (err) {
       if (err instanceof z.ZodError) {
         toast.error(err.errors[0].message);
@@ -70,18 +80,48 @@ const Auth = () => {
     }
 
     setIsLoading(true);
+    
+    // First create the account
     const { error } = await signUp(email, password, fullName);
-    setIsLoading(false);
 
     if (error) {
+      setIsLoading(false);
       if (error.message.includes('already registered')) {
         toast.error('This email is already registered. Please sign in.');
       } else {
         toast.error(error.message);
       }
-    } else {
-      toast.success('Account created successfully! You can now sign in.');
+      return;
     }
+
+    // If teacher role selected, try to use the invite code
+    if (selectedRole === 'teacher') {
+      // Wait a moment for the user to be created
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Get the newly created user
+      const { data: { user: newUser } } = await supabase.auth.getUser();
+      
+      if (newUser) {
+        const { data: codeValid, error: codeError } = await supabase
+          .rpc('use_teacher_invite_code', { 
+            p_code: inviteCode.trim(),
+            p_user_id: newUser.id 
+          });
+        
+        if (codeError || !codeValid) {
+          setIsLoading(false);
+          toast.error('Invalid or expired invite code. Account created as student.');
+          return;
+        }
+        
+        toast.success('Teacher account created successfully!');
+      }
+    } else {
+      toast.success('Account created successfully!');
+    }
+    
+    setIsLoading(false);
   };
 
   if (loading) {
@@ -153,6 +193,31 @@ const Auth = () => {
 
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
+                  {/* Role Selection */}
+                  <div className="space-y-2">
+                    <Label>I am a</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        type="button"
+                        variant={selectedRole === 'student' ? 'default' : 'outline'}
+                        className="h-auto py-3 flex flex-col gap-1"
+                        onClick={() => setSelectedRole('student')}
+                      >
+                        <BookOpen className="h-5 w-5" />
+                        <span>Student</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={selectedRole === 'teacher' ? 'default' : 'outline'}
+                        className="h-auto py-3 flex flex-col gap-1"
+                        onClick={() => setSelectedRole('teacher')}
+                      >
+                        <Users className="h-5 w-5" />
+                        <span>Teacher</span>
+                      </Button>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="signup-name">Full Name</Label>
                     <Input
@@ -186,9 +251,24 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    All new accounts start as students. Contact an administrator for teacher access.
-                  </p>
+                  
+                  {selectedRole === 'teacher' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="invite-code">Teacher Invite Code</Label>
+                      <Input
+                        id="invite-code"
+                        type="text"
+                        placeholder="Enter invite code"
+                        value={inviteCode}
+                        onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
+                        required
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Use code <span className="font-mono font-semibold">TEACHER2024</span> for teacher access
+                      </p>
+                    </div>
+                  )}
+                  
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
@@ -196,7 +276,7 @@ const Auth = () => {
                         Creating account...
                       </>
                     ) : (
-                      'Create Account'
+                      `Create ${selectedRole === 'teacher' ? 'Teacher' : 'Student'} Account`
                     )}
                   </Button>
                 </form>

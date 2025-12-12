@@ -485,6 +485,39 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_invite_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -538,6 +571,10 @@ export type Database = {
           class_id: string
           class_name: string
         }[]
+      }
+      use_teacher_invite_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: boolean
       }
     }
     Enums: {
