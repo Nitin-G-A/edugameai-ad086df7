@@ -90,24 +90,24 @@ Open in browser:
 http://localhost:5173
 
 ---
-
 ## 📂 Project Structure
 
 /
 ├── src/
-│ └── React components, pages, hooks, game logic
+│   └── React components, pages, hooks, game logic
 │
 ├── public/
-│ └── Static assets
+│   └── Static assets
 │
 ├── supabase/
-│ └── DB schema, SQL, migrations, configuration
+│   └── DB schema, SQL, migrations, configuration
 │
 ├── index.html
 ├── package.json
 ├── tailwind.config.ts
 ├── tsconfig.json
 └── README.md
+
 
 ---
 
