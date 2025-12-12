@@ -1,6 +1,6 @@
 ## Our EduGame AI — an AI assistant that helps Students and Teachers learn, teach, and collaborate effectively.
 
-## Product Link: https://edugameai.netlify.app
+## Product Link: https://edugameai.lovable.app
 
 
 ## primary goals:
