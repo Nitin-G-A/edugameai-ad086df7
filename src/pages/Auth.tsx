@@ -116,6 +116,9 @@ const Auth = () => {
         }
         
         toast.success('Teacher account created successfully!');
+        // Force navigation to teacher dashboard
+        navigate('/teacher');
+        return;
       }
     } else {
       toast.success('Account created successfully!');
@@ -264,7 +267,7 @@ const Auth = () => {
                         required
                       />
                       <p className="text-xs text-muted-foreground">
-                        Use code <span className="font-mono font-semibold">TEACHER2024</span> for teacher access
+                        Contact your administrator to get a teacher invite code
                       </p>
                     </div>
                   )}
