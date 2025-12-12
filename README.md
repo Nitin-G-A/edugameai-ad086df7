@@ -94,14 +94,14 @@ http://localhost:5173
 ## 📂 Project Structure
 
 /
-├── src/                 
-│   └── (React components, pages, hooks, game logic)
+├── src/
+│ └── React components, pages, hooks, game logic
 │
-├── public/              
-│   └── (Static assets)
+├── public/
+│ └── Static assets
 │
-├── supabase/            
-│   └── (DB schema, SQL, migrations, configuration)
+├── supabase/
+│ └── DB schema, SQL, migrations, configuration
 │
 ├── index.html
 ├── package.json
