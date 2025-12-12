@@ -90,9 +90,9 @@ Open in browser:
 http://localhost:5173
 
 ---
-## 📂 Project Structure
 
-/
+### 📂 Project Structure
+
 ├── src/
 │   └── React components, pages, hooks, game logic
 │
@@ -107,7 +107,6 @@ http://localhost:5173
 ├── tailwind.config.ts
 ├── tsconfig.json
 └── README.md
-
 
 ---
 
