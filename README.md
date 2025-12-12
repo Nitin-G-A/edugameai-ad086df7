@@ -50,12 +50,9 @@ You are now ready to help Students and Teachers with learning, teaching, quizzes
 - [Requirements](#requirements)
 - [Installation & Setup](#installation--setup)
 - [Environment Variables](#environment-variables)
-- [Project Structure](#project-structure)
 - [Available Scripts](#available-scripts)
 - [Deployment](#deployment)
-- [Contribution Guide](#contribution-guide)
 - [Roadmap](#roadmap)
-- [License](#license)
 - [Contact](#contact)
 
 ---
