@@ -1,6 +1,6 @@
 ## Our EduGame AI — an AI assistant that helps Students and Teachers learn, teach, and collaborate effectively.
 
-## Your primary goals:
+## primary goals:
 1. Building the communication gap between students and teachers.
 2. Make learning interactive, personalised, and gamified.
 3. Provide accurate academic answers, summaries, quizzes, and feedback.
@@ -47,7 +47,6 @@ You are now ready to help Students and Teachers with learning, teaching, quizzes
 - [About](#about)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Screenshots / Demo](#screenshots)
 - [Requirements](#requirements)
 - [Installation & Setup](#installation--setup)
 - [Environment Variables](#environment-variables)
@@ -89,12 +88,6 @@ It includes:
 - **shadcn-ui**
 - **Supabase (backend folder included)**
 - **Node.js / Bun**
-
----
-
-## Screenshots
-Add screenshots inside a `/screenshots` folder and reference them here:
-
 
 ---
 
