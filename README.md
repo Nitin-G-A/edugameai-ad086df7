@@ -93,27 +93,15 @@ http://localhost:5173
 
 ### Project Structure
 /
-root
+├─ src/ # React components, pages, hooks, game logic
+├─ public/ # Static assets
+├─ supabase/ # DB schema, SQL, migrations, configuration
 │
-├── src
-│   ├── components
-│   ├── pages
-│   ├── hooks
-│   ├── assets
-│   └── main.tsx
-│
-├── public
-│   └── favicon.svg
-│
-├── supabase
-│   ├── migrations
-│   └── seeds
-│
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-└── README.md
-
+├─ index.html
+├─ package.json
+├─ tailwind.config.ts
+├─ tsconfig.json
+└─ README.md
 ---
 
 ### Available Scripts
