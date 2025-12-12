@@ -5,11 +5,50 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation helper
+function validateInput(body: unknown): { unitName: string; duration: string; grade: string } | null {
+  if (!body || typeof body !== 'object') return null;
+  
+  const data = body as Record<string, unknown>;
+  
+  // Validate unitName
+  if (typeof data.unitName !== 'string' || data.unitName.length < 1 || data.unitName.length > 500) {
+    return null;
+  }
+  
+  // Validate duration
+  if (typeof data.duration !== 'string' || data.duration.length < 1 || data.duration.length > 100) {
+    return null;
+  }
+  
+  // Validate grade
+  if (typeof data.grade !== 'string' || data.grade.length < 1 || data.grade.length > 100) {
+    return null;
+  }
+  
+  return {
+    unitName: data.unitName,
+    duration: data.duration,
+    grade: data.grade
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { unitName, duration, grade } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validatedInput = validateInput(body);
+    if (!validatedInput) {
+      return new Response(JSON.stringify({ error: "Invalid input parameters" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    const { unitName, duration, grade } = validatedInput;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 

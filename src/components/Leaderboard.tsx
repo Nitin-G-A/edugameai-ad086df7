@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trophy, Medal, Star, Flame, Crown, Loader2 } from 'lucide-react';
+import { Trophy, Medal, Star, Crown, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface LeaderboardEntry {
-  id: string;
-  full_name: string;
-  avatar_url: string | null;
+  user_id: string;
+  display_name: string;
   xp: number;
   level: number;
-  streak_days: number;
   rank: number;
 }
 
@@ -70,10 +68,28 @@ const Leaderboard = () => {
     setLoading(true);
 
     try {
-      let studentIds: string[] = [];
+      // Use secure RPC function that only exposes non-sensitive data
+      const { data, error } = await supabase.rpc('get_leaderboard', { limit_count: 20 });
 
-      if (selectedClass === 'all') {
-        // Get all students from user's classes
+      if (error) {
+        console.error('Failed to fetch leaderboard:', error);
+        setLeaderboard([]);
+        return;
+      }
+
+      // If a specific class is selected, filter by class members
+      let filteredData = data || [];
+      
+      if (selectedClass !== 'all') {
+        const { data: classMembers } = await supabase
+          .from('class_members')
+          .select('student_id')
+          .eq('class_id', selectedClass);
+
+        const memberIds = new Set((classMembers || []).map((m) => m.student_id));
+        filteredData = filteredData.filter((entry: { user_id: string }) => memberIds.has(entry.user_id));
+      } else {
+        // For "all classes", filter to only show users in the same classes as current user
         const { data: memberships } = await supabase
           .from('class_members')
           .select('class_id')
@@ -86,33 +102,14 @@ const Leaderboard = () => {
             .select('student_id')
             .in('class_id', classIds);
 
-          studentIds = [...new Set((allMembers || []).map((m) => m.student_id))];
+          const memberIds = new Set((allMembers || []).map((m) => m.student_id));
+          filteredData = filteredData.filter((entry: { user_id: string }) => memberIds.has(entry.user_id));
+        } else {
+          filteredData = [];
         }
-      } else {
-        // Get students from selected class
-        const { data: classMembers } = await supabase
-          .from('class_members')
-          .select('student_id')
-          .eq('class_id', selectedClass);
-
-        studentIds = (classMembers || []).map((m) => m.student_id);
       }
 
-      if (!studentIds.length) {
-        setLeaderboard([]);
-        setLoading(false);
-        return;
-      }
-
-      // Get profiles for these students
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name, avatar_url, xp, level, streak_days')
-        .in('id', studentIds)
-        .order('xp', { ascending: false })
-        .limit(20);
-
-      const rankedProfiles = (profiles || []).map((p, index) => ({
+      const rankedProfiles = filteredData.map((p: { user_id: string; display_name: string; xp: number; level: number }, index: number) => ({
         ...p,
         rank: index + 1,
       }));
@@ -120,7 +117,7 @@ const Leaderboard = () => {
       setLeaderboard(rankedProfiles);
 
       // Find user's rank
-      const userEntry = rankedProfiles.find((p) => p.id === user.id);
+      const userEntry = rankedProfiles.find((p: LeaderboardEntry) => p.user_id === user.id);
       setUserRank(userEntry?.rank || null);
     } catch (error) {
       console.error('Failed to fetch leaderboard:', error);
@@ -188,35 +185,28 @@ const Leaderboard = () => {
           <div className="space-y-2">
             {leaderboard.map((entry) => (
               <div
-                key={entry.id}
+                key={entry.user_id}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                  entry.id === user?.id
+                  entry.user_id === user?.id
                     ? 'bg-primary/10 border border-primary/30'
                     : 'hover:bg-muted/50'
                 }`}
               >
                 <div className="w-8 flex justify-center">{getRankIcon(entry.rank)}</div>
                 <Avatar className="h-9 w-9">
-                  <AvatarImage src={entry.avatar_url || undefined} />
                   <AvatarFallback className="text-xs">
-                    {getInitials(entry.full_name)}
+                    {getInitials(entry.display_name)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="font-medium text-sm truncate">
-                    {entry.full_name}
-                    {entry.id === user?.id && (
+                    {entry.display_name}
+                    {entry.user_id === user?.id && (
                       <span className="text-primary ml-1">(You)</span>
                     )}
                   </p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>Level {entry.level}</span>
-                    {entry.streak_days > 0 && (
-                      <span className="flex items-center gap-0.5">
-                        <Flame className="w-3 h-3 text-destructive" />
-                        {entry.streak_days}d
-                      </span>
-                    )}
                   </div>
                 </div>
                 <Badge variant="secondary" className="gap-1">

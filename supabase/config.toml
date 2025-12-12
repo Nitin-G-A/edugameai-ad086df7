@@ -1,1 +1,19 @@
 project_id = "mzeswjehgzqoeorzriyo"
+
+[functions.ai-doubt-solver]
+verify_jwt = true
+
+[functions.ai-explain-mistake]
+verify_jwt = true
+
+[functions.ai-grade-assignment]
+verify_jwt = true
+
+[functions.ai-lesson-planner]
+verify_jwt = true
+
+[functions.ai-quiz-generator]
+verify_jwt = true
+
+[functions.ai-summarizer]
+verify_jwt = true

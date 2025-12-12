@@ -5,11 +5,45 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation helper
+function validateInput(body: unknown): { wrongAnswer: string; subject: string } | null {
+  if (!body || typeof body !== 'object') return null;
+  
+  const data = body as Record<string, unknown>;
+  
+  // Validate wrongAnswer
+  if (typeof data.wrongAnswer !== 'string' || data.wrongAnswer.length < 1 || data.wrongAnswer.length > 10000) {
+    return null;
+  }
+  
+  // Validate subject
+  const validSubjects = ['computer_science', 'stem', 'humanities'];
+  if (typeof data.subject !== 'string' || !validSubjects.includes(data.subject)) {
+    return null;
+  }
+  
+  return {
+    wrongAnswer: data.wrongAnswer,
+    subject: data.subject
+  };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { wrongAnswer, subject } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validatedInput = validateInput(body);
+    if (!validatedInput) {
+      return new Response(JSON.stringify({ error: "Invalid input parameters" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    const { wrongAnswer, subject } = validatedInput;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
