@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { GraduationCap, BookOpen, Users, Loader2 } from 'lucide-react';
+import { GraduationCap, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -15,7 +14,6 @@ const emailSchema = z.string().email('Invalid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 const Auth = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { signIn, signUp, user, role, loading } = useAuth();
 
@@ -23,9 +21,6 @@ const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [selectedRole, setSelectedRole] = useState<'student' | 'teacher'>(
-    (searchParams.get('role') as 'student' | 'teacher') || 'student'
-  );
 
   useEffect(() => {
     if (!loading && user && role) {
@@ -75,7 +70,7 @@ const Auth = () => {
     }
 
     setIsLoading(true);
-    const { error } = await signUp(email, password, fullName, selectedRole);
+    const { error } = await signUp(email, password, fullName);
     setIsLoading(false);
 
     if (error) {
@@ -85,7 +80,7 @@ const Auth = () => {
         toast.error(error.message);
       }
     } else {
-      toast.success('Account created successfully!');
+      toast.success('Account created successfully! You can now sign in.');
     }
   };
 
@@ -110,7 +105,7 @@ const Auth = () => {
         <Card>
           <CardHeader className="text-center">
             <CardTitle>Welcome</CardTitle>
-            <CardDescription>Sign in to continue learning or teaching</CardDescription>
+            <CardDescription>Sign in to continue learning</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="signin" className="w-full">
@@ -191,43 +186,9 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  <div className="space-y-3">
-                    <Label>I am a...</Label>
-                    <RadioGroup
-                      value={selectedRole}
-                      onValueChange={(value) => setSelectedRole(value as 'student' | 'teacher')}
-                      className="grid grid-cols-2 gap-4"
-                    >
-                      <div>
-                        <RadioGroupItem
-                          value="student"
-                          id="student"
-                          className="peer sr-only"
-                        />
-                        <Label
-                          htmlFor="student"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                        >
-                          <BookOpen className="mb-2 h-6 w-6" />
-                          Student
-                        </Label>
-                      </div>
-                      <div>
-                        <RadioGroupItem
-                          value="teacher"
-                          id="teacher"
-                          className="peer sr-only"
-                        />
-                        <Label
-                          htmlFor="teacher"
-                          className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer"
-                        >
-                          <Users className="mb-2 h-6 w-6" />
-                          Teacher
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    All new accounts start as students. Contact an administrator for teacher access.
+                  </p>
                   <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>

@@ -27,11 +27,9 @@ const JoinClassDialog = ({ open, onOpenChange, onSuccess }: JoinClassDialogProps
 
     setIsJoining(true);
     try {
-      // Find the class by join code
+      // Use secure RPC function to lookup class by join code
       const { data: classData, error: classError } = await supabase
-        .from('classes')
-        .select('id, name')
-        .eq('join_code', joinCode.toUpperCase())
+        .rpc('lookup_class_by_code', { code: joinCode.toUpperCase() })
         .single();
 
       if (classError || !classData) {
@@ -42,7 +40,7 @@ const JoinClassDialog = ({ open, onOpenChange, onSuccess }: JoinClassDialogProps
       const { data: existingMember } = await supabase
         .from('class_members')
         .select('id')
-        .eq('class_id', classData.id)
+        .eq('class_id', classData.class_id)
         .eq('student_id', user?.id)
         .single();
 
@@ -52,13 +50,13 @@ const JoinClassDialog = ({ open, onOpenChange, onSuccess }: JoinClassDialogProps
 
       // Join the class
       const { error: joinError } = await supabase.from('class_members').insert([{
-        class_id: classData.id,
+        class_id: classData.class_id,
         student_id: user?.id as string,
       }]);
 
       if (joinError) throw joinError;
 
-      toast.success(`Successfully joined "${classData.name}"!`);
+      toast.success(`Successfully joined "${classData.class_name}"!`);
       setJoinCode('');
       onOpenChange(false);
       onSuccess?.();
