@@ -5,15 +5,50 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation helper
+function validateInput(body: unknown): { topic: string; difficulty: string; numQuestions: number } | null {
+  if (!body || typeof body !== 'object') return null;
+  
+  const data = body as Record<string, unknown>;
+  
+  // Validate topic (optional, default to general knowledge)
+  const topic = typeof data.topic === 'string' && data.topic.length > 0 && data.topic.length <= 500 
+    ? data.topic 
+    : "general knowledge";
+  
+  // Validate difficulty
+  const validDifficulties = ['easy', 'medium', 'hard'];
+  const difficulty = typeof data.difficulty === 'string' && validDifficulties.includes(data.difficulty)
+    ? data.difficulty
+    : "medium";
+  
+  // Validate numQuestions (1-20)
+  let numQuestions = 5;
+  if (typeof data.numQuestions === 'number') {
+    numQuestions = Math.min(20, Math.max(1, Math.floor(data.numQuestions)));
+  }
+  
+  return { topic, difficulty, numQuestions };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { topic, difficulty, numQuestions } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validatedInput = validateInput(body);
+    if (!validatedInput) {
+      return new Response(JSON.stringify({ error: "Invalid input parameters" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    const { topic, difficulty, numQuestions } = validatedInput;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-    const topicText = topic || "general knowledge";
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -25,7 +60,7 @@ serve(async (req) => {
         model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: "You generate educational quiz questions for higher education students." },
-          { role: "user", content: `Generate ${numQuestions || 5} ${difficulty || 'medium'} difficulty multiple choice questions about "${topicText}". Make sure each question has exactly 4 options.` },
+          { role: "user", content: `Generate ${numQuestions} ${difficulty} difficulty multiple choice questions about "${topic}". Make sure each question has exactly 4 options.` },
         ],
         tools: [{
           type: "function",

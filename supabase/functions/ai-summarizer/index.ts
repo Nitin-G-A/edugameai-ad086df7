@@ -5,20 +5,63 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Input validation helper
+function validateInput(body: unknown): { content: string; title: string; images?: string[] } | null {
+  if (!body || typeof body !== 'object') return null;
+  
+  const data = body as Record<string, unknown>;
+  
+  // Validate content (optional if images provided)
+  const content = typeof data.content === 'string' ? data.content.substring(0, 100000) : '';
+  
+  // Validate title
+  const title = typeof data.title === 'string' && data.title.length <= 500 ? data.title : '';
+  
+  // Validate images (optional, array of base64 strings)
+  let images: string[] | undefined;
+  if (data.images !== undefined) {
+    if (!Array.isArray(data.images)) return null;
+    if (data.images.length > 10) return null; // Limit to 10 images
+    
+    images = [];
+    for (const img of data.images) {
+      if (typeof img !== 'string') return null;
+      // Basic validation for base64 data URL
+      if (!img.startsWith('data:image/')) return null;
+      if (img.length > 5000000) return null; // Limit each image to ~5MB
+      images.push(img);
+    }
+  }
+  
+  // Must have either content or images
+  if (!content.trim() && (!images || images.length === 0)) {
+    return null;
+  }
+  
+  return { content, title, images };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { content, title, images } = await req.json();
+    const body = await req.json();
+    
+    // Validate input
+    const validatedInput = validateInput(body);
+    if (!validatedInput) {
+      return new Response(JSON.stringify({ error: "Invalid input parameters" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    const { content, title, images } = validatedInput;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const hasContent = content && content.trim();
     const hasImages = images && images.length > 0;
-
-    if (!hasContent && !hasImages) {
-      throw new Error("No content or images provided");
-    }
 
     console.log("Processing summarization request:", {
       contentLength: content?.length || 0,
@@ -26,7 +69,7 @@ serve(async (req) => {
     });
 
     // Build messages based on whether we have text, images, or both
-    const userContent: any[] = [];
+    const userContent: unknown[] = [];
     
     if (hasImages) {
       // Add instruction for image processing
@@ -35,9 +78,8 @@ serve(async (req) => {
         text: `Please analyze and extract all text content from the following ${images.length} page image(s) of a document${title ? ` titled "${title}"` : ''}. Then create a comprehensive summary, key points, flashcards, and quiz questions based on the content.${hasContent ? `\n\nAdditional text content extracted: ${content.substring(0, 30000)}` : ''}`
       });
       
-      // Add images (limit to first 10 for performance)
-      const imagesToProcess = images.slice(0, 10);
-      for (const imageData of imagesToProcess) {
+      // Add images
+      for (const imageData of images) {
         userContent.push({
           type: "image_url",
           image_url: {

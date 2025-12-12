@@ -512,6 +512,15 @@ export type Database = {
     }
     Functions: {
       generate_join_code: { Args: never; Returns: string }
+      get_leaderboard: {
+        Args: { limit_count?: number }
+        Returns: {
+          display_name: string
+          level: number
+          user_id: string
+          xp: number
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
