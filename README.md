@@ -1,5 +1,7 @@
 ## Our EduGame AI — an AI assistant that helps Students and Teachers learn, teach, and collaborate effectively.
 
+## Product Link: https://edugameai.netlify.app
+
 ## primary goals:
 1. Building the communication gap between students and teachers.
 2. Make learning interactive, personalised, and gamified.
