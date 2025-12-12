@@ -1,73 +1,146 @@
-# Welcome to your Lovable project
+# EduGameAI
 
-## Project info
+> A modern AI-powered educational game frontend built with Vite, React, and TypeScript.  
+> Designed for fast development, Tailwind-based UI, and Supabase backend integration.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+![Status](https://img.shields.io/badge/status-active-brightgreen.svg)
+![Tech](https://img.shields.io/badge/tech-Vite%20|%20React%20|%20TypeScript-blue.svg)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+##  Table of Contents
+- [About](#about)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Screenshots / Demo](#screenshots--demo)
+- [Requirements](#requirements)
+- [Installation & Setup](#installation--setup)
+- [Environment Variables](#environment-variables)
+- [Project Structure](#project-structure)
+- [Available Scripts](#available-scripts)
+- [Deployment](#deployment)
+- [Contribution Guide](#contribution-guide)
+- [Roadmap](#roadmap)
+- [License](#license)
+- [Contact](#contact)
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+##  About
+EduGameAI is a **React + TypeScript** application designed to support an AI-powered educational gaming experience.
 
-Changes made via Lovable will be committed automatically to this repo.
+It includes:
+- Fast Vite development environment  
+- Tailwind + shadcn-ui component setup  
+- Supabase backend scaffolding  
+- Clean folder structure for scalable growth  
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Features
+-  **Vite** for ultra-fast development  
+-  **Tailwind CSS + shadcn-ui** components  
+-  Ready for **AI integrations**  
+-  Supabase-ready authentication & database structure  
+-  Clean and scalable folder structure  
+-  Easy to deploy on Netlify  
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## Tech Stack
+- **React + TypeScript**
+- **Vite**
+- **Tailwind CSS**
+- **shadcn-ui**
+- **Supabase (backend folder included)**
+- **Node.js / Bun**
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Screenshots
+Add screenshots inside a `/screenshots` folder and reference them here:
 
-# Step 3: Install the necessary dependencies.
-npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+---
+
+## Requirements
+- Node.js **16+**  
+- npm / pnpm / bun  
+- A Supabase project (optional for now)
+
+---
+
+## Installation & Setup
+
+### 1️ Clone the repository
+
+git clone https://github.com/Nitin-G-A/edugameai-ad086df7.git
+cd edugameai-ad086df7
+
+2️ Install dependencies
+npm install
+# or
+pnpm install
+# or
+bun install
+
+3️ Start the development server
 npm run dev
-```
+Open in browser:
+http://localhost:5173
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Project Structure
+/
+├─ src/                 # React components & game logic
+├─ public/              # Static assets
+├─ supabase/            # DB schema, SQL, migrations
+├─ index.html
+├─ package.json
+├─ tailwind.config.ts
+├─ tsconfig.json
+└─ README.md
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Available Scripts
+npm run dev        # Start Vite dev server
+npm run build      # Build production files
+npm run preview    # Preview production build locally
+npm run lint       # Lint code (if configured)
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+### Deployment
+Deploy on Vercel
+Push repo to GitHub
+Open Vercel → "Add New Project"
+Select repo
+Add environment variables
+Deploy on Netlify
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Same steps → choose Vite build settings:
+Build command: npm run build
+Publish directory: dist
+🤝 Contribution Guide
+Fork this repo
+Create a new branch
+git checkout -b feature/new-improvement
+Commit your changes
+Push & open a Pull Request
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Roadmap
+ 
+🔹 Add AI-generated game questions
+🔹 Supabase authentication (email/OAuth)
+🔹 Admin dashboard for managing content
+🔹 Leaderboard system
+🔹 Mobile-responsive redesign
 
-## Can I connect a custom domain to my Lovable project?
+### Contact
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Nitin G A
+GitHub: https://github.com/Nitin-G-A
