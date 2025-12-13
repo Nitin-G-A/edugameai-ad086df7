@@ -1,6 +1,6 @@
 ## Our EduGame AI — an AI assistant that helps Students and Teachers learn, teach, and collaborate effectively.
 
-## Product Link: https://edugameai.lovable.app
+## Product Link: https://professorbuddy.lovable.app
 
 
 ## primary goals:
